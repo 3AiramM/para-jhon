@@ -1,1 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Para ti ❤️</title>
 
+<style>
+body{
+    margin:0;
+    background: radial-gradient(circle at center, #1a001f, #000);
+    overflow:hidden;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    font-family:Arial, sans-serif;
+    color:white;
+}
+
+/* Fondo partículas */
+canvas{
+    position:fixed;
+    top:0;
+    left:0;
+    z-index:-1;
+}
+
+/* Corazón */
+.heart{
+    font-size:130px;
+    cursor:pointer;
+    animation: pulse 1.5s infinite;
+    transition:0.3s;
+}
+
+@keyframes pulse{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.12);}
+    100%{transform:scale(1);}
+}
+
+.explode{
+    animation: boom 0.8s forwards;
+}
+
+@keyframes boom{
+    0%{transform:scale(1);}
+    50%{transform:scale(2);}
+    100%{transform:scale(0);opacity:0;}
+}
+
+/* Modal */
+.modal{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:rgba(25,0,40,0.95);
+    padding:35px;
+    border-radius:25px;
+    width:80%;
+    max-width:520px;
+    text-align:center;
+    box-shadow:0 0 40px #ff00aa;
+    display:none;
+}
+
+.fade{
+    animation:fadeIn 0.8s;
+}
+
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(20px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+.glow{
+    animation:glow 1s infinite alternate;
+}
+
+@keyframes glow{
+    from{text-shadow:0 0 10px #ff00aa;}
+    to{text-shadow:0 0 25px #ff00aa;}
+}
+
+button{
+    margin-top:25px;
+    padding:12px 25px;
+    border:none;
+    background:#ff00aa;
+    color:white;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+/* Lluvia */
+.rain{
+    position:absolute;
+    top:-10px;
+    font-size:22px;
+    animation: fall linear infinite;
+}
+
+@keyframes fall{
+    to{transform:translateY(100vh);}
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="heart" id="mainHeart">❤️</div>
+
+<div class="modal" id="modal">
+    <p id="lyrics"></p>
+    <button onclick="nextLine()">Siguiente</button>
+</div>
+
+<audio id="boomSound" src="https://assets.mixkit.co/sfx/preview/mixkit-fast-small-sweep-transition-166.wav"></audio>
+
+<script>
+
+const lines = [
+"Te confieso, llevo un rato idealizándote...",
+"Toda una vida yo buscándote.",
+"No sé qué hacer, te ves tan bien...",
+"Soy algo tímida, pero esta vez me atreveré.",
+"Ya me tienes como una loca enamorada.",
+"La verdad es que tú me gustas demasiado.",
+"Ahora no sales de mi mente.",
+"¿Será que lo que siento tú también lo sientes?",
+"Quiero bailar contigo hasta la última canción.",
+"Si tú eres para mí, yo también soy para ti.",
+"Tú sabes que me gustas, sabes que me encantas."
+];
+
+let index = 0;
+
+document.getElementById("mainHeart").onclick = function(){
+    this.classList.add("explode");
+    document.getElementById("boomSound").play();
+    setTimeout(()=>{
+        document.getElementById("modal").style.display="block";
+        showLine();
+    },800);
+};
+
+function showLine(){
+    const text = document.getElementById("lyrics");
+    text.className="";
+    text.innerText = lines[index];
+
+    if(index % 2 === 0){
+        text.classList.add("fade");
+    } else {
+        text.classList.add("glow");
+    }
+}
+
+function nextLine(){
+    index++;
+    if(index < lines.length){
+        showLine();
+    } else {
+        showFinal();
+    }
+}
+
+function showFinal(){
+    const text = document.getElementById("lyrics");
+    text.innerHTML = "<h2 class='glow'>Te amo ❤️</h2>";
+    document.querySelector("button").innerText="Responder";
+    document.querySelector("button").onclick=rainHearts;
+}
+
+function rainHearts(){
+    for(let i=0;i<60;i++){
+        const heart=document.createElement("div");
+        heart.className="rain";
+        heart.innerText="💖";
+        heart.style.left=Math.random()*100+"vw";
+        heart.style.animationDuration=(Math.random()*3+2)+"s";
+        document.body.appendChild(heart);
+    }
+}
+
+/* Fondo partículas suaves */
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+for(let i=0;i<120;i++){
+    particles.push({
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        r:Math.random()*2,
+        d:Math.random()*1
+    });
+}
+
+function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="rgba(255,255,255,0.7)";
+    particles.forEach(p=>{
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fill();
+        p.y += p.d;
+        if(p.y > canvas.height) p.y = 0;
+    });
+    requestAnimationFrame(draw);
+}
+
+draw();
+
+</script>
+
+</body>
+</html>
